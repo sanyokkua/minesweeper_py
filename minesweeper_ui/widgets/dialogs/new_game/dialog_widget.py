@@ -14,7 +14,6 @@ log: logging.Logger = logging.getLogger(__name__)
 class QDialogWidget(QDialog):
     def __init__(self) -> None:
         QDialog.__init__(self)
-        log.debug('__init__ of QDialogWidget')
         self.setWindowTitle('Dialog')
         self.setLayout(self._create_layout())
         self.setFixedSize(QSize(380, 190))

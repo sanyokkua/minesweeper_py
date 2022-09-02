@@ -11,7 +11,7 @@ class QApplicationMinesweeper(QApplication):
 
     def __init__(self) -> None:
         super().__init__([])
-        log.debug('QApplicationMinesweeper.__init__')
+        log.debug('start')
         self._main_control_widget = QMainWindowMinesweeper()
         self._main_control_widget.show()
-        log.debug('QApplicationMinesweeper.__init__.exit')
+        log.debug('exit')

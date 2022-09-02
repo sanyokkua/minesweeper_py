@@ -117,23 +117,22 @@ class QDialogForm(QWidget):
         self._manage_max_number_of_mines()
 
     def _on_columns_value_changed(self, value: int) -> None:
-        log.debug('_on_columns_value_changed, value: %d', value)
+        log.debug('value: %d', value)
         self._number_of_columns = value
         self._manage_max_number_of_mines()
 
     def _on_mines_value_changed(self, value: int) -> None:
-        log.debug('_on_mines_value_changed, value: %d', value)
+        log.debug('value: %d', value)
         self._number_of_mines = value
 
     def _on_combo_box_complexity_text_activated(self, value: str) -> None:
-        log.debug('_on_combo_box_complexity_text_activated, value: %s', value)
+        log.debug('value: %s', value)
         config = _COMPLEXITY_MAPPING[value]
         self._number_of_rows = config.number_of_rows
         self._number_of_columns = config.number_of_columns
         self._number_of_mines = config.number_of_mines
 
     def _manage_max_number_of_mines(self) -> None:
-        log.debug('_manage_max_number_of_mines')
         rows = self._number_of_rows
         cols = self._number_of_columns
         num_cells = rows * cols
@@ -141,21 +140,19 @@ class QDialogForm(QWidget):
         self._spin_box_number_of_mines.setMaximum(max_num_mines)
 
     def _on_check_box_state_changed(self, value: int) -> None:
-        log.debug('_on_check_box_state_changed, value: %d', value)
+        log.debug('value: %d', value)
         if value == 0:
             self._enable_combobox_config_options()
         else:
             self._disable_combobox_config_options()
 
     def _enable_combobox_config_options(self) -> None:
-        log.debug('_enable_combobox_config_options')
         self._combo_box_complexity.setEnabled(True)
         self._spin_box_number_of_rows.setEnabled(False)
         self._spin_box_number_of_columns.setEnabled(False)
         self._spin_box_number_of_mines.setEnabled(False)
 
     def _disable_combobox_config_options(self) -> None:
-        log.debug('_disable_combobox_config_options')
         self._combo_box_complexity.setEnabled(False)
         self._spin_box_number_of_rows.setEnabled(True)
         self._spin_box_number_of_columns.setEnabled(True)
