@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from minesweeper_core.api.controller_action_markers import ControllerActionMarkers
 from minesweeper_core.data.cell import Cell
 
 
@@ -12,3 +13,4 @@ class GameInformation:
     game_field: dict[tuple[int, int], Cell]
     is_finished: bool
     is_player_win: bool
+    controller_action: ControllerActionMarkers

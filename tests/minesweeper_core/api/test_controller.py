@@ -1,7 +1,8 @@
 import unittest.mock as mock
 
 from minesweeper_core.api.controller import MinesweeperController
-from minesweeper_core.constants.default_configurations import BEGINNER, INTERMEDIATE
+from minesweeper_core.constants.default_configurations import BEGINNER
+from minesweeper_core.constants.default_configurations import INTERMEDIATE
 from minesweeper_core.data.field_configuration import Configuration
 from minesweeper_core.logic.game_logic import GameLogic
 

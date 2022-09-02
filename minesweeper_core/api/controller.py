@@ -2,6 +2,7 @@
 import logging
 from typing import Callable
 
+from minesweeper_core.api.controller_action_markers import ControllerActionMarkers
 from minesweeper_core.api.dtos import GameInformation
 from minesweeper_core.constants.default_configurations import BEGINNER
 from minesweeper_core.data.field_configuration import Configuration
@@ -27,29 +28,29 @@ class MinesweeperController:
         self._last_config = config
         self._game_instance = GameLogic(self._last_config)
         if self._on_game_status_update_callback:
-            self._on_game_status_update_callback(self.get_game_info())
+            self._on_game_status_update_callback(self.get_game_info(ControllerActionMarkers.NEW_GAME))
 
     def reset_game(self) -> None:
         log.debug('reset_game, with config: %s', self._last_config)
         self._game_instance = GameLogic(self._last_config)
         if self._on_game_status_update_callback:
-            self._on_game_status_update_callback(self.get_game_info())
+            self._on_game_status_update_callback(self.get_game_info(ControllerActionMarkers.RESET_GAME))
 
     def open_cell(self, row: int, column: int) -> None:
         log.debug('open_cell, with row: %d, col: %d', row, column)
         if self._game_instance:
             self._game_instance.open_cell(row, column)
         if self._on_game_status_update_callback:
-            self._on_game_status_update_callback(self.get_game_info())
+            self._on_game_status_update_callback(self.get_game_info(ControllerActionMarkers.CELL_OPENED))
 
     def flag_cell(self, row: int, column: int) -> None:
         log.debug('flag_cell, with row: %d, col: %d', row, column)
         if self._game_instance:
             self._game_instance.flag_cell(row, column)
         if self._on_game_status_update_callback:
-            self._on_game_status_update_callback(self.get_game_info())
+            self._on_game_status_update_callback(self.get_game_info(ControllerActionMarkers.CELL_FLAGGED))
 
-    def get_game_info(self) -> GameInformation | None:
+    def get_game_info(self, marker: ControllerActionMarkers | None = None) -> GameInformation | None:
         log.debug('get_game_info')
         if self._game_instance:
             info = GameInformation(
@@ -59,7 +60,8 @@ class MinesweeperController:
                 number_of_flags_left=self._game_instance.number_of_flags,
                 game_field=self._game_instance.field,
                 is_finished=self._game_instance.is_game_finished,
-                is_player_win=self._game_instance.is_player_win
+                is_player_win=self._game_instance.is_player_win,
+                controller_action=marker
             )
             log.debug('get_game_info, info: %s', info)
             return info

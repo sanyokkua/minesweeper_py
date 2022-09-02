@@ -17,17 +17,21 @@ from PyQt6.QtWidgets import QWidget
 import minesweeper_ui.game_instance as instance
 from minesweeper_core.api.dtos import GameInformation
 from minesweeper_core.constants.default_configurations import BEGINNER
+from minesweeper_core.data.field_configuration import Configuration
+from minesweeper_ui.widgets.dialogs.new_game.dialog_widget import QDialogWidget
+from minesweeper_ui.widgets.field.field_widget import QWidgetFieldMinesweeper
 
 log: logging.Logger = logging.getLogger(__name__)
 
 
-class QtWidgetMainWindow(QMainWindow):
+class QMainWindowMinesweeper(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        log.debug('QtWidgetMainWindow.__init__')
-
+        log.debug('QMainWindowMinesweeper.__init__')
+        self.setWindowTitle('Minesweeper')
+        self._field_widget = QWidgetFieldMinesweeper()
         self._init_menu_items()
-        self._create_main_widget_container_and_layout()
+        self._create_window_container_widget_and_layout()
         self._create_control_widget_container_and_layout()
         self._create_control_widgets()
         self._add_control_widgets_to_layout()
@@ -35,14 +39,17 @@ class QtWidgetMainWindow(QMainWindow):
         self._add_reset_game_push_button_signal_handler()
         self._add_game_menu_actions_signal_handler()
 
-        self.setCentralWidget(self._main_window_container_widget)
+        self._window_container_widget_layout.addWidget(self.menuBar())
+        self._window_container_widget_layout.addWidget(self._main_control_widget)
+        self._window_container_widget_layout.addWidget(self._field_widget)
+        self.setCentralWidget(self._window_container_widget)
         min_size = QSize(540, 400)
         self.setMinimumSize(min_size)
         self.resize(min_size)
 
         instance.subscribe_to_updates(self._on_game_status_update_callback)
         instance.CONTROLLER.start_new_game(BEGINNER)
-        log.debug('QtWidgetMainWindow.__init__.exit')
+        log.debug('QMainWindowMinesweeper.__init__.exit')
 
     def _init_menu_items(self):
         log.debug('_init_menu_items')
@@ -55,7 +62,7 @@ class QtWidgetMainWindow(QMainWindow):
         self._add_game_menu_action_shortcuts()
         self._game_menu_add_game_menu_actions()
         self._main_menu_bar.addAction(self._game_menu.menuAction())
-        self.setMenuBar(self._main_menu_bar)
+        # self.setMenuBar(self._main_menu_bar)
 
     def _create_game_menu(self):
         log.debug('_create_game_menu')
@@ -64,9 +71,9 @@ class QtWidgetMainWindow(QMainWindow):
 
     def _create_game_menu_actions(self):
         log.debug('_create_game_menu_actions')
-        self._action_new_game = QAction(self)
-        self._action_reset_game = QAction(self)
-        self._action_exit = QAction(self)
+        self._action_new_game = QAction(self._game_menu)
+        self._action_reset_game = QAction(self._game_menu)
+        self._action_exit = QAction(self._game_menu)
 
     def _set_game_menu_action_roles(self):
         log.debug('_set_game_menu_action_roles')
@@ -94,38 +101,39 @@ class QtWidgetMainWindow(QMainWindow):
 
     def _game_menu_add_game_menu_actions(self):
         log.debug('_game_menu_add_game_menu_actions')
-        self._game_menu.addAction(self._action_new_game)
-        self._game_menu.addAction(self._action_reset_game)
-        self._game_menu.addAction(self._action_exit)
+        self._game_menu.addActions([self._action_new_game,
+                                    self._action_reset_game,
+                                    self._action_exit])
 
-    def _create_main_widget_container_and_layout(self):
-        log.debug('_create_main_widget_container_and_layout')
-        self._main_window_container_widget = QWidget()
-        self._main_window_container_widget_layout = QVBoxLayout(self._main_window_container_widget)
-        self._main_window_container_widget_layout.setContentsMargins(0, 0, 0, 0)
-        self._main_window_container_widget_layout.setSpacing(0)
-        self._main_window_container_widget.setLayout(self._main_window_container_widget_layout)
+    def _create_window_container_widget_and_layout(self):
+        log.debug('_create_window_container_widget_and_layout')
+        self._window_container_widget = QWidget(self)
+        self._window_container_widget_layout = QVBoxLayout(self._window_container_widget)
+        self._window_container_widget_layout.setContentsMargins(0, 0, 0, 0)
+        self._window_container_widget_layout.setSpacing(0)
+        self._window_container_widget.setLayout(self._window_container_widget_layout)
 
     def _create_control_widget_container_and_layout(self):
         log.debug('_create_control_widget_container_and_layout')
-        self._main_control_widget = QWidget()
+        self._main_control_widget = QWidget(self._window_container_widget)
         self._main_control_widget_layout = QHBoxLayout(self._main_control_widget)
         self._main_control_widget_layout.setContentsMargins(0, 0, 0, 0)
         self._main_control_widget_layout.setSpacing(0)
         self._main_control_widget.setLayout(self._main_control_widget_layout)
+        self._main_control_widget.setMaximumHeight(50)
 
     def _create_control_widgets(self):
         log.debug('_create_control_widgets')
-        self._label_time = QLabel(self._main_control_widget_layout)
+        self._label_time = QLabel(self._main_control_widget)
 
         expanding_policy = QSizePolicy.Policy.Expanding
         vh_size_policy = QSizePolicy(expanding_policy, expanding_policy)
-        self._reset_game_push_button = QPushButton(self._main_control_widget_layout)
+        self._reset_game_push_button = QPushButton(self._main_control_widget)
         self._reset_game_push_button.setSizePolicy(vh_size_policy)
         self._reset_game_push_button.setMaximumSize(QSize(80, 80))
         self._reset_game_push_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
-        self._label_flags = QLabel(self._main_control_widget_layout)
+        self._label_flags = QLabel(self._main_control_widget)
 
     def _add_control_widgets_to_layout(self):
         log.debug('_add_control_widgets_to_layout')
@@ -151,7 +159,7 @@ class QtWidgetMainWindow(QMainWindow):
 
     def _on_reset_game_push_button_clicked(self, checked: bool = False):
         log.debug('_on_reset_game_push_button_clicked, checked: %s', checked)
-        self._reset_game()
+        instance.CONTROLLER.reset_game()
 
     def _on_new_game_action_triggered(self, checked: bool = False):
         log.debug('_on_new_game_action_triggered, checked: %s', checked)
@@ -159,7 +167,7 @@ class QtWidgetMainWindow(QMainWindow):
 
     def _on_reset_game_action_triggered(self, checked: bool = False):
         log.debug('_on_reset_game_action_triggered, checked: %s', checked)
-        self._reset_game()
+        instance.CONTROLLER.reset_game()
 
     def _on_exit_game_action_triggered(self, checked: bool = False):
         log.debug('_on_exit_game_action_triggered, checked: %s', checked)
@@ -167,12 +175,18 @@ class QtWidgetMainWindow(QMainWindow):
 
     def _show_new_game_dialog(self):
         log.debug('_show_new_game_dialog')
-        pass
+        popup = QDialogWidget()
+        popup_result: int = popup.exec()
 
-    def _reset_game(self):
-        log.debug('_reset_game')
-        instance.CONTROLLER.reset_game()
+        if popup_result:
+            number_of_columns = popup.number_of_columns
+            number_of_rows = popup.number_of_rows
+            number_of_mines = popup.number_of_mines
+            config = Configuration(number_of_rows=number_of_rows,
+                                   number_of_columns=number_of_columns,
+                                   number_of_mines=number_of_mines)
+            instance.CONTROLLER.start_new_game(config=config)
 
     def _on_game_status_update_callback(self, game_info: GameInformation):
         log.debug('_on_game_status_update_callback, info: %s', game_info)
-        self._label_flags.setText(game_info.number_of_flags_left)
+        self._label_flags.setText(str(game_info.number_of_flags_left))
