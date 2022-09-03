@@ -1,8 +1,7 @@
 import pytest
 
-from minesweeper_core.constants.default_configurations import ADVANCED
-from minesweeper_core.constants.default_configurations import BEGINNER
-from minesweeper_core.constants.default_configurations import INTERMEDIATE
+from minesweeper_core.constants.default_configurations import ADVANCED, \
+    BEGINNER, INTERMEDIATE
 from minesweeper_core.data.field_configuration import Configuration
 from minesweeper_core.logic.exceptions import IncorrectCoordinatesException
 from minesweeper_core.logic.game_logic import GameLogic
@@ -203,9 +202,13 @@ class TestGameLogic:
 
     def test_flag_cell(self) -> None:
         game = GameLogic(BEGINNER)
-        game.open_cell(3, 3)
+        game._put_mines = lambda coordinates: print(coordinates)
+        game.field[(0, 0)].has_mine = True
+        game.field[(5, 5)].has_mine = True
+        game.field[(3, 3)].has_mine = True
+        game.open_cell(0, 1)
         assert game._flags_number == BEGINNER.number_of_mines
-        game.flag_cell(0, 1)
+        game.flag_cell(3, 1)
         game.flag_cell(0, 2)
         game.flag_cell(0, 3)
         assert game._flags_number == (BEGINNER.number_of_mines - 3)
@@ -229,7 +232,7 @@ class TestGameLogic:
         game.flag_cell(0, 4)
         game.flag_cell(0, 3)
         game.flag_cell(0, 2)
-        game.flag_cell(0, 1)
+        game.flag_cell(3, 1)
         assert game._flags_number == BEGINNER.number_of_mines
 
     def test__open_cell_has_mine(self) -> None:
@@ -300,7 +303,8 @@ class TestGameLogic:
         assert count_mines_after == BEGINNER.number_of_mines
 
     def test__open_neighbour_cells(self) -> None:
-        config = Configuration(number_of_rows=5, number_of_columns=5, number_of_mines=3)
+        config = Configuration(
+            number_of_rows=5, number_of_columns=5, number_of_mines=3)
         game = GameLogic(config)
         # * - - - -     ->      * - - - -
         # - - - - -     ->      1 1 1 - -
@@ -343,7 +347,8 @@ class TestGameLogic:
             game._validate_coordinates(9, 9)
 
     def test__process_current_game_state_without_flags(self) -> None:
-        config = Configuration(number_of_rows=5, number_of_columns=5, number_of_mines=3)
+        config = Configuration(
+            number_of_rows=5, number_of_columns=5, number_of_mines=3)
         game = GameLogic(config)
         game._put_mines = lambda _: print()
         # * - - - -
@@ -375,7 +380,8 @@ class TestGameLogic:
         assert game._is_game_finished
 
     def test__process_current_game_state_with_flags(self) -> None:
-        config = Configuration(number_of_rows=5, number_of_columns=5, number_of_mines=3)
+        config = Configuration(
+            number_of_rows=5, number_of_columns=5, number_of_mines=3)
         game = GameLogic(config)
         game._put_mines = lambda _: print()
         # * - - - -

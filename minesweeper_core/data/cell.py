@@ -1,8 +1,10 @@
+""""""
 from dataclasses import dataclass
 
 
 @dataclass(repr=True)
 class Cell:
+    """ """
     row: int
     column: int
     neighbour_mines: int = 0

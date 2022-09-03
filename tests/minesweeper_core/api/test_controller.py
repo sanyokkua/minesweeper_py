@@ -1,8 +1,8 @@
 import unittest.mock as mock
 
 from minesweeper_core.api.controller import MinesweeperController
-from minesweeper_core.constants.default_configurations import BEGINNER
-from minesweeper_core.constants.default_configurations import INTERMEDIATE
+from minesweeper_core.constants.default_configurations import (BEGINNER,
+                                                               INTERMEDIATE)
 from minesweeper_core.data.field_configuration import Configuration
 from minesweeper_core.logic.game_logic import GameLogic
 
@@ -10,7 +10,8 @@ from minesweeper_core.logic.game_logic import GameLogic
 class TestMinesweeperController:
     def test_init(self) -> None:
         mock_method = mock.Mock()
-        game = MinesweeperController(on_game_status_update_callback=mock_method)
+        game = MinesweeperController(
+            on_game_status_update_callback=mock_method)
 
         assert game._game_instance is None
         assert game._last_config is BEGINNER
@@ -34,7 +35,8 @@ class TestMinesweeperController:
         }
         mock_game_logic.configure_mock(**attrs)
 
-        game = MinesweeperController(on_game_status_update_callback=mock_callback)
+        game = MinesweeperController(
+            on_game_status_update_callback=mock_callback)
         game.start_new_game(INTERMEDIATE)
 
         assert game._last_config is INTERMEDIATE
@@ -58,7 +60,8 @@ class TestMinesweeperController:
         }
         mock_game_logic.configure_mock(**attrs)
 
-        game = MinesweeperController(on_game_status_update_callback=mock_callback)
+        game = MinesweeperController(
+            on_game_status_update_callback=mock_callback)
         game.start_new_game(INTERMEDIATE)
         mock_callback.assert_called()
 
@@ -86,7 +89,8 @@ class TestMinesweeperController:
         mock_game_logic.configure_mock(**attrs)
         game_logic_mock.return_value = mock_game_logic
 
-        game = MinesweeperController(on_game_status_update_callback=mock_callback)
+        game = MinesweeperController(
+            on_game_status_update_callback=mock_callback)
         game.start_new_game(INTERMEDIATE)
         mock_callback.assert_called()
 
@@ -114,7 +118,8 @@ class TestMinesweeperController:
         mock_game_logic.configure_mock(**attrs)
         game_logic_mock.return_value = mock_game_logic
 
-        game = MinesweeperController(on_game_status_update_callback=mock_callback)
+        game = MinesweeperController(
+            on_game_status_update_callback=mock_callback)
         game.start_new_game(INTERMEDIATE)
         mock_callback.assert_called()
 
@@ -135,7 +140,8 @@ class TestMinesweeperController:
         mock_callback = mock.Mock()
         game_logic_mock.return_value = game_logic
 
-        game = MinesweeperController(on_game_status_update_callback=mock_callback)
+        game = MinesweeperController(
+            on_game_status_update_callback=mock_callback)
         game.start_new_game(INTERMEDIATE)
         mock_callback.assert_called()
 
