@@ -17,35 +17,35 @@ class CellColor(enum.Enum):
     """Represent available colors that are used in the game.
 
     Args:
-        enum (_type_): parent class.
+        enum.Enum (_type_): parent class.
     """
 
-    COLOR_BLACK: str = '#000000'
-    COLOR_BLUE_50: str = '#e3f2fd'
-    COLOR_BLUE_600: str = '#1e88e5'
-    COLOR_GREY_400: str = '#bdbdbd'
-    COLOR_LIME_300: str = '#dce775'
-    COLOR_RED_100: str = '#ffcdd2'
-    COLOR_RED_200: str = '#ef9a9a'
-    COLOR_RED_300: str = '#e57373'
-    COLOR_RED_400: str = '#ef5350'
-    COLOR_RED_500: str = '#f44336'
-    COLOR_RED_600: str = '#e53935'
-    COLOR_RED_700: str = '#d32f2f'
-    COLOR_RED_800: str = '#c62828'
-    COLOR_WHITE: str = '#ffffff'
+    COLOR_BLACK = '#000000'
+    COLOR_BLUE_50 = '#e3f2fd'
+    COLOR_BLUE_600 = '#1e88e5'
+    COLOR_GREY_400 = '#bdbdbd'
+    COLOR_LIME_300 = '#dce775'
+    COLOR_RED_100 = '#ffcdd2'
+    COLOR_RED_200 = '#ef9a9a'
+    COLOR_RED_300 = '#e57373'
+    COLOR_RED_400 = '#ef5350'
+    COLOR_RED_500 = '#f44336'
+    COLOR_RED_600 = '#e53935'
+    COLOR_RED_700 = '#d32f2f'
+    COLOR_RED_800 = '#c62828'
+    COLOR_WHITE = '#ffffff'
 
 
 class FieldColors(enum.Enum):
     """Represent default colors for the game states.
 
     Args:
-        enum (_type_): parent class.
+        enum.Enum (_type_): parent class.
     """
 
-    COLOR_INITIAL_STATE: CellColor = CellColor.COLOR_BLUE_600
-    COLOR_OPEN_STATE: CellColor = CellColor.COLOR_BLUE_50
-    COLOR_FLAG_STATE: CellColor = CellColor.COLOR_LIME_300
+    COLOR_INITIAL_STATE = CellColor.COLOR_BLUE_600
+    COLOR_OPEN_STATE = CellColor.COLOR_BLUE_50
+    COLOR_FLAG_STATE = CellColor.COLOR_LIME_300
 
 
 # Mapping of the number of mines to the color of the cell.

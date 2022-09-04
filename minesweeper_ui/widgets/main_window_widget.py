@@ -193,7 +193,8 @@ class QMainWindowMinesweeper(QMainWindow):
         log.debug('checked: %s', checked)
         self._show_new_game_dialog()
 
-    def _on_reset_game_action_triggered(self, checked: bool = False) -> None:
+    @staticmethod
+    def _on_reset_game_action_triggered(checked: bool = False) -> None:
         """Handle on reset game action clicked event.
 
         Args:
@@ -203,7 +204,8 @@ class QMainWindowMinesweeper(QMainWindow):
         log.debug('checked: %s', checked)
         instance.CONTROLLER.reset_game()
 
-    def _on_exit_game_action_triggered(self, checked: bool = False) -> None:
+    @staticmethod
+    def _on_exit_game_action_triggered(checked: bool = False) -> None:
         """Handle on exit game action clicked event.
 
         Args:
@@ -213,7 +215,8 @@ class QMainWindowMinesweeper(QMainWindow):
         log.debug('checked: %s', checked)
         sys.exit()
 
-    def _show_new_game_dialog(self) -> None:
+    @staticmethod
+    def _show_new_game_dialog() -> None:
         """Create and show new game popup dialog."""
         popup: QDialogWidget = QDialogWidget()
         popup_result: int = popup.exec()

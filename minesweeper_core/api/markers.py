@@ -6,10 +6,10 @@ class ControllerActions(enum.Enum):
     """Markers for GameInformation.
 
     Args:
-        enum (_type_): Defines Enum Class
+        enum.Enum (_type_): Defines Enum Class
     """
 
-    NEW_GAME: int = 0
-    RESET_GAME: int = 1
-    CELL_FLAGGED: int = 2
-    CELL_OPENED: int = 3
+    NEW_GAME = 0
+    RESET_GAME = 1
+    CELL_FLAGGED = 2
+    CELL_OPENED = 3
