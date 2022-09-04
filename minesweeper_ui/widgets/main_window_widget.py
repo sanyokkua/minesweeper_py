@@ -1,4 +1,4 @@
-""" """
+"""Module contains QMainWindowMinesweeper class."""
 import logging
 import sys
 
@@ -8,10 +8,9 @@ from PyQt6.QtWidgets import (QHBoxLayout, QLCDNumber, QLabel, QMainWindow,
                              QMenu, QMenuBar, QVBoxLayout, QWidget)
 
 import minesweeper_ui.game_instance as instance
-from minesweeper_core.api.controller_action_markers import \
-    ControllerActionMarkers
 from minesweeper_core.api.dtos import GameInformation
-from minesweeper_core.constants.default_configurations import BEGINNER
+from minesweeper_core.api.markers import ControllerActions
+from minesweeper_core.constants.configurations import BEGINNER
 from minesweeper_core.data.field_configuration import Configuration
 from minesweeper_ui.widgets.custom_buttons import QResetButton
 from minesweeper_ui.widgets.dialogs.new_game.dialog_widget import QDialogWidget
@@ -21,15 +20,14 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class QMainWindowMinesweeper(QMainWindow):
-    """_summary_
+    """Implementation of the main window widget of the game.
 
     Args:
-        QMainWindow (_type_): _description_
+        QMainWindow (_type_): parent class.
     """
 
     def __init__(self) -> None:
-        """_summary_
-        """
+        """Initialize default values and configuration."""
         super().__init__()
         log.debug('__init__')
         self._timer: QTimer = QTimer(self)
@@ -66,8 +64,7 @@ class QMainWindowMinesweeper(QMainWindow):
         log.debug('__init__.exit')
 
     def _init_menu_items(self) -> None:
-        """_summary_
-        """
+        """Initialize menu related items."""
         self._main_menu_bar: QMenuBar = self.menuBar()
         self._create_game_menu()
         self._create_game_menu_actions()
@@ -79,21 +76,18 @@ class QMainWindowMinesweeper(QMainWindow):
         self._main_menu_bar.addAction(self._game_menu.menuAction())
 
     def _create_game_menu(self) -> None:
-        """_summary_
-        """
+        """Create instance of the QMenu for future use."""
         self._game_menu: QMenu = QMenu(self._main_menu_bar)
         self._game_menu.setTitle('Menu')
 
     def _create_game_menu_actions(self) -> None:
-        """_summary_
-        """
+        """Create actions for the game menu."""
         self._action_new_game: QAction = QAction(self._game_menu)
         self._action_reset_game: QAction = QAction(self._game_menu)
         self._action_exit: QAction = QAction(self._game_menu)
 
     def _set_game_menu_action_roles(self) -> None:
-        """_summary_
-        """
+        """Add roles to the menu actions."""
         self._action_new_game.setMenuRole(
             QAction.MenuRole.ApplicationSpecificRole)
         self._action_reset_game.setMenuRole(
@@ -101,37 +95,32 @@ class QMainWindowMinesweeper(QMainWindow):
         self._action_exit.setMenuRole(QAction.MenuRole.QuitRole)
 
     def _set_game_menu_action_texts(self) -> None:
-        """_summary_
-        """
+        """Set text for the menu actions."""
         self._action_new_game.setText('New Game')
         self._action_reset_game.setText('Reset Game')
         self._action_exit.setText('Exit')
 
     def _add_game_menu_action_tool_tips(self) -> None:
-        """_summary_
-        """
+        """Set tooltips to the menu actions."""
         self._action_new_game.setToolTip('Start New Game')
         self._action_reset_game.setToolTip(
             'Start New Game with Previous Configuration')
         self._action_exit.setToolTip('Exit From The Game')
 
     def _add_game_menu_action_shortcuts(self) -> None:
-        """_summary_
-        """
+        """Set keyboard shortcuts to the menu actions."""
         self._action_new_game.setShortcut('Ctrl+N')
         self._action_reset_game.setShortcut('Ctrl+R')
         self._action_exit.setShortcut('Ctrl+Q')
 
     def _game_menu_add_game_menu_actions(self) -> None:
-        """_summary_
-        """
+        """Add menu actions to the game menu."""
         self._game_menu.addActions([self._action_new_game,
                                     self._action_reset_game,
                                     self._action_exit])
 
     def _create_window_container_widget_and_layout(self) -> None:
-        """_summary_
-        """
+        """Create main container widget for all child widgets in the app."""
         self._window_container_widget: QWidget = QWidget(self)
         self._window_container_widget_layout: QVBoxLayout = QVBoxLayout(
             self._window_container_widget)
@@ -141,8 +130,7 @@ class QMainWindowMinesweeper(QMainWindow):
             self._window_container_widget_layout)
 
     def _create_control_widget_container_and_layout(self) -> None:
-        """_summary_
-        """
+        """Create and configure main application layout."""
         self._main_control_widget: QWidget = QWidget(
             self._window_container_widget)
         self._main_control_widget_layout: QHBoxLayout = QHBoxLayout(
@@ -153,8 +141,7 @@ class QMainWindowMinesweeper(QMainWindow):
         self._main_control_widget.setMaximumHeight(50)
 
     def _create_control_widgets(self) -> None:
-        """_summary_
-        """
+        """Create instances of the control widgets for the main window."""
         self._label_time: QLabel = QLabel(self._main_control_widget)
         self._label_time.setText('Time:')
         self._lcd_time: QLCDNumber = QLCDNumber(self._main_control_widget)
@@ -165,8 +152,7 @@ class QMainWindowMinesweeper(QMainWindow):
         self._lcd_flags: QLCDNumber = QLCDNumber(self._main_control_widget)
 
     def _add_control_widgets_to_layout(self) -> None:
-        """_summary_
-        """
+        """Add created control widgets to the control widget layout."""
         self._main_control_widget_layout.addWidget(self._label_time)
         self._main_control_widget_layout.addWidget(self._lcd_time)
         self._main_control_widget_layout.addWidget(
@@ -175,8 +161,7 @@ class QMainWindowMinesweeper(QMainWindow):
         self._main_control_widget_layout.addWidget(self._lcd_flags)
 
     def _configure_control_widgets(self) -> None:
-        """_summary_
-        """
+        """Configure control widgets with default parameters."""
         self._lcd_time.setDecMode()
         self._lcd_time.setDigitCount(10)
         self._lcd_time.display(0)
@@ -185,14 +170,12 @@ class QMainWindowMinesweeper(QMainWindow):
         self._lcd_flags.display(0)
 
     def _add_reset_game_push_button_signal_handler(self) -> None:
-        """_summary_
-        """
+        """Connect reset button clicked signal to the handler."""
         self._reset_game_push_button.clicked.connect(
             self._on_reset_game_action_triggered)
 
     def _add_game_menu_actions_signal_handler(self) -> None:
-        """_summary_
-        """
+        """Connect handlers to the signals of the menu actions."""
         self._action_new_game.triggered.connect(
             self._on_new_game_action_triggered)
         self._action_reset_game.triggered.connect(
@@ -201,35 +184,37 @@ class QMainWindowMinesweeper(QMainWindow):
             self._on_exit_game_action_triggered)
 
     def _on_new_game_action_triggered(self, checked: bool = False) -> None:
-        """_summary_
+        """Handle on new game action clicked event.
 
         Args:
-            checked (bool, optional): _description_. Defaults to False.
+            checked (bool, optional): status of the menu action.
+                Defaults to False.
         """
         log.debug('checked: %s', checked)
         self._show_new_game_dialog()
 
     def _on_reset_game_action_triggered(self, checked: bool = False) -> None:
-        """_summary_
+        """Handle on reset game action clicked event.
 
         Args:
-            checked (bool, optional): _description_. Defaults to False.
+            checked (bool, optional): status of the menu action.
+                Defaults to False.
         """
         log.debug('checked: %s', checked)
         instance.CONTROLLER.reset_game()
 
     def _on_exit_game_action_triggered(self, checked: bool = False) -> None:
-        """_summary_
+        """Handle on exit game action clicked event.
 
         Args:
-            checked (bool, optional): _description_. Defaults to False.
+            checked (bool, optional): status of the menu action.
+                Defaults to False.
         """
         log.debug('checked: %s', checked)
         sys.exit()
 
     def _show_new_game_dialog(self) -> None:
-        """_summary_
-        """
+        """Create and show new game popup dialog."""
         popup: QDialogWidget = QDialogWidget()
         popup_result: int = popup.exec()
 
@@ -245,25 +230,25 @@ class QMainWindowMinesweeper(QMainWindow):
 
     def _on_game_status_update_callback(self,
                                         game_info: GameInformation) -> None:
-        """_summary_
+        """Handle update of the game status.
 
         Args:
-            game_info (GameInformation): _description_
+            game_info (GameInformation): game information.
         """
         log.debug('info: %s', game_info)
         if game_info.is_finished and self._timer.isActive():
             self._timer.stop()
         self._lcd_flags.display(game_info.number_of_flags_left)
         self._change_reset_button_icon(game_info)
-        if game_info.controller_action in [ControllerActionMarkers.NEW_GAME,
-                                           ControllerActionMarkers.RESET_GAME]:
+        if game_info.controller_action in [ControllerActions.NEW_GAME,
+                                           ControllerActions.RESET_GAME]:
             self._on_game_update_new_reset(game_info)
 
     def _change_reset_button_icon(self, game_info: GameInformation) -> None:
-        """_summary_
+        """Change reset button icon based on the vent information.
 
         Args:
-            game_info (GameInformation): _description_
+            game_info (GameInformation): game information.
         """
         if game_info.is_finished and game_info.is_player_win:
             self._reset_game_push_button.apply_icon_winner()
@@ -273,16 +258,15 @@ class QMainWindowMinesweeper(QMainWindow):
             self._reset_game_push_button.apply_icon_new_game()
 
     def _on_timer_update(self) -> None:
-        """_summary_
-        """
+        """Increment time and display it on the lcd widget."""
         self._timer_time += 1
         self._lcd_time.display(self._timer_time)
 
     def _on_game_update_new_reset(self, game_info: GameInformation) -> None:
-        """_summary_
+        """Reset time value and start timer on the reset or new game event.
 
         Args:
-            game_info (GameInformation): _description_
+            game_info (GameInformation): game information.
         """
         self._timer_time = 0
         if not game_info.is_finished and not self._timer.isActive():

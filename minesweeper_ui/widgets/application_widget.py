@@ -1,19 +1,18 @@
-""" """
+"""Module contains QApplicationMinesweeper class."""
 from PyQt6.QtWidgets import QApplication
 
 from minesweeper_ui.widgets.main_window_widget import QMainWindowMinesweeper
 
 
 class QApplicationMinesweeper(QApplication):
-    """_summary_
+    """Main application class.
 
     Args:
-        QApplication (_type_): _description_
+        QApplication (_type_): parent class.
     """
 
     def __init__(self) -> None:
-        """_summary_
-        """
+        """Initialize application."""
         super().__init__([])
-        self._main_control_widget: QMainWindowMinesweeper = QMainWindowMinesweeper()
-        self._main_control_widget.show()
+        self._main_widget: QMainWindowMinesweeper = QMainWindowMinesweeper()
+        self._main_widget.show()

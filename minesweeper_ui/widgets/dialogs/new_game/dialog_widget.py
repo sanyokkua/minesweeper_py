@@ -1,4 +1,4 @@
-""" """
+"""Module contains QDialogWidget class."""
 from PyQt6.QtCore import QRect, QSize
 from PyQt6.QtWidgets import QDialog, QVBoxLayout
 
@@ -8,15 +8,14 @@ from minesweeper_ui.widgets.dialogs.new_game.dialog_form import QDialogForm
 
 
 class QDialogWidget(QDialog):
-    """_summary_
+    """Custom Dialog widget.
 
     Args:
-        QDialog (_type_): _description_
+        QDialog (_type_): parent class.
     """
 
     def __init__(self) -> None:
-        """_summary_
-        """
+        """Initialize dialog widget."""
         QDialog.__init__(self)
         self.setWindowTitle('Dialog')
         self.setLayout(self._create_layout())
@@ -26,10 +25,10 @@ class QDialogWidget(QDialog):
             QDialogButtons(dial_accept=self.accept, dial_reject=self.reject))
 
     def _create_layout(self) -> QVBoxLayout:
-        """_summary_
+        """Create layout of the widget.
 
         Returns:
-            QVBoxLayout: _description_
+            QVBoxLayout: vertical layout.
         """
         layout: QVBoxLayout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -38,37 +37,37 @@ class QDialogWidget(QDialog):
         return layout
 
     def _create_form(self) -> QDialogForm:
-        """_summary_
+        """Create dialog form.
 
         Returns:
-            QDialogForm: _description_
+            QDialogForm: dialog form.
         """
         self._form: QDialogForm = QDialogForm()
         return self._form
 
     @property
     def number_of_rows(self) -> int:
-        """_summary_
+        """Return number of rows.
 
         Returns:
-            int: _description_
+            int: number of rows.
         """
         return self._form.number_of_rows
 
     @property
     def number_of_columns(self) -> int:
-        """_summary_
+        """Return number of columns.
 
         Returns:
-            int: _description_
+            int: number of columns.
         """
         return self._form.number_of_columns
 
     @property
     def number_of_mines(self) -> int:
-        """_summary_
+        """Return number of mines.
 
         Returns:
-            int: _description_
+            int: number of mines.
         """
         return self._form.number_of_mines

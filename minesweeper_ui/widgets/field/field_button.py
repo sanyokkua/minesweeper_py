@@ -1,4 +1,4 @@
-""" """
+"""Module contains QFieldButtonCell class and helper class and variables."""
 import enum
 import logging
 from typing import Callable
@@ -14,11 +14,12 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 class CellColor(enum.Enum):
-    """_summary_
+    """Represent available colors that are used in the game.
 
     Args:
-        enum (_type_): _description_
+        enum (_type_): parent class.
     """
+
     COLOR_BLACK: str = '#000000'
     COLOR_BLUE_50: str = '#e3f2fd'
     COLOR_BLUE_600: str = '#1e88e5'
@@ -36,16 +37,18 @@ class CellColor(enum.Enum):
 
 
 class FieldColors(enum.Enum):
-    """_summary_
+    """Represent default colors for the game states.
 
     Args:
-        enum (_type_): _description_
+        enum (_type_): parent class.
     """
+
     COLOR_INITIAL_STATE: CellColor = CellColor.COLOR_BLUE_600
     COLOR_OPEN_STATE: CellColor = CellColor.COLOR_BLUE_50
     COLOR_FLAG_STATE: CellColor = CellColor.COLOR_LIME_300
 
 
+# Mapping of the number of mines to the color of the cell.
 COLOR_TO_MINES_MAPPING: dict[int, CellColor] = {
     0: CellColor.COLOR_BLUE_50,
     1: CellColor.COLOR_RED_100,
@@ -58,6 +61,7 @@ COLOR_TO_MINES_MAPPING: dict[int, CellColor] = {
     8: CellColor.COLOR_RED_800
 }
 
+# Mapping of the background color to the foreground text colors.
 COLOR_TEXT_MAPPING: dict[CellColor, CellColor] = {
     CellColor.COLOR_BLACK: CellColor.COLOR_WHITE,
     CellColor.COLOR_BLUE_50: CellColor.COLOR_BLACK,
@@ -77,57 +81,70 @@ COLOR_TEXT_MAPPING: dict[CellColor, CellColor] = {
 
 
 def build_style_by_color(field_color: FieldColors) -> str:
-    """_summary_
+    """Build string style for the passed field_color.
 
     Args:
-        field_color (FieldColors): _description_
+        field_color (FieldColors): field color.
 
     Returns:
-        str: _description_
+        str: style string.
     """
     log.debug('field_color: %s', field_color.name)
     back_ground_color: CellColor = field_color.value
-    log.debug('color: %s', back_ground_color)
-    text_color: str = COLOR_TEXT_MAPPING[back_ground_color].value
-    style: str = f'background-color: {back_ground_color.value}; border: 1px solid black; color: {text_color}'
-    log.debug('style: %s', style)
-    return style
+    return build_style(back_ground_color)
 
 
 def build_style_by_mines(number_of_mines: int) -> str:
-    """_summary_
+    """Build string style for the passed number of mines.
 
     Args:
-        number_of_mines (int): _description_
+        number_of_mines (int): number of mines around the cell. 0-8
 
     Returns:
-        str: _description_
+        str: style string.
     """
     log.debug('number_of_mines: %d', number_of_mines)
     back_ground_color: CellColor = COLOR_TO_MINES_MAPPING[number_of_mines]
+    return build_style(back_ground_color)
+
+
+def build_style(back_ground_color: CellColor) -> str:
+    """Build string style for the passed background color.
+
+    Args:
+        back_ground_color (CellColor): background color.
+
+    Returns:
+        str: style string.
+    """
     log.debug('color: %s', back_ground_color)
     text_color: str = COLOR_TEXT_MAPPING[back_ground_color].value
-    style: str = f'background-color: {back_ground_color.value}; border: 1px solid black; color: {text_color}'
+    background: str = f'background-color: {back_ground_color.value};'
+    border: str = 'border: 1px solid black;'
+    color: str = f'color: {text_color}'
+    style: str = ' '.join([background, border, color])
     log.debug('style: %s', style)
     return style
 
 
 class QFieldButtonCell(QPushButton):
-    """_summary_
+    """Custom button to represent Field Cell.
 
     Args:
-        QPushButton (_type_): _description_
+        QPushButton (_type_): parent class.
     """
 
     def __init__(self, cell: Cell,
                  on_mouse_left_button_click: Callable[[Cell], None],
                  on_mouse_right_button_click: Callable[[Cell], None]) -> None:
-        """_summary_
+        """Initialize button.
 
         Args:
-            cell (Cell): _description_
-            on_mouse_left_button_click (Callable[[Cell], None]): _description_
-            on_mouse_right_button_click (Callable[[Cell], None]): _description_
+            cell (Cell): instance of the related cell.
+            on_mouse_left_button_click (Callable[[Cell], None]):
+                handler of the left mouse button click
+            on_mouse_right_button_click (Callable[[Cell], None]):
+                handler of the right mouse button click
         """
         QPushButton.__init__(self)
         self._img_bomb: QIcon = load_icon('bomb.png')
@@ -149,14 +166,17 @@ class QFieldButtonCell(QPushButton):
         self.installEventFilter(self)
 
     def eventFilter(self, obj, event) -> bool:
-        """_summary_
+        """Override eventFilter functionality.
+
+        Adds implementation for the left/right mouse button click
+        events.
 
         Args:
-            obj (_type_): _description_
-            event (_type_): _description_
+            obj (_type_): source object that sends event.
+            event (_type_): event that was generated.
 
         Returns:
-            bool: _description_
+            bool: status of the processed event.
         """
         if event.type() == QEvent.Type.MouseButtonPress and obj is self:
             log.debug('QObject: %s, QEvent: %s', obj.__repr__(),
@@ -172,18 +192,15 @@ class QFieldButtonCell(QPushButton):
             return QPushButton.eventFilter(self, obj, event)
 
     def _on_left_button_press_handler(self) -> None:
-        """_summary_
-        """
+        """Handle left mouse button click event."""
         self._on_mouse_left_button_click(self.cell)
 
     def _on_right_button_press_handler(self) -> None:
-        """_summary_
-        """
+        """Handle right mouse button click event."""
         self._on_mouse_right_button_click(self.cell)
 
     def apply_style_initial(self) -> None:
-        """_summary_
-        """
+        """Change button state that should be initial after game starts."""
         self.setEnabled(True)
         self.setChecked(False)
         self.setText('')
@@ -192,28 +209,27 @@ class QFieldButtonCell(QPushButton):
             build_style_by_color(FieldColors.COLOR_INITIAL_STATE))
 
     def apply_style_open(self) -> None:
-        """_summary_
-        """
+        """Change button state that should be in open cell."""
         self.setEnabled(False)
         self.setChecked(True)
-        val: str = f'{self.cell.neighbour_mines}' if self._cell.neighbour_mines > 0 else ''
+        mines = self._cell.neighbour_mines
+        val: str = f'{mines}' if mines > 0 else ''
         self.setText(val)
         self.setStyleSheet(build_style_by_mines(self.cell.neighbour_mines))
 
     def apply_style_flag(self) -> None:
-        """_summary_
-        """
+        """Change button state that should be in flagged cell."""
         self.setEnabled(True)
         self.setChecked(False)
         self._apply_icon(self._img_flag)
         self.setStyleSheet(build_style_by_color(FieldColors.COLOR_FLAG_STATE))
 
     def apply_style_finish(self) -> None:
-        """_summary_
-        """
+        """Change button state that should be when game is finished."""
         self.setChecked(True)
         self.setEnabled(False)
-        number_of_mines: str = f'{self.cell.neighbour_mines}' if self.cell.neighbour_mines > 0 else ''
+        mines = self.cell.neighbour_mines
+        number_of_mines: str = f'{mines}' if mines > 0 else ''
         final_value: str = '' if self.cell.has_mine else number_of_mines
         self.setText(final_value)
         if self.cell.has_mine:
@@ -224,10 +240,10 @@ class QFieldButtonCell(QPushButton):
             self.apply_style_open()
 
     def _apply_icon(self, icon: QIcon) -> None:
-        """_summary_
+        """Change icon to the passed.
 
         Args:
-            icon (QIcon): _description_
+            icon (QIcon): icon.
         """
         self.setIcon(icon)
         smallest_side: int = get_smallest_side_size(self)
@@ -235,18 +251,18 @@ class QFieldButtonCell(QPushButton):
 
     @property
     def cell(self) -> Cell:
-        """_summary_
+        """Return related cell.
 
         Returns:
-            Cell: _description_
+            Cell: cell
         """
         return self._cell
 
     @cell.setter
     def cell(self, cell: Cell) -> None:
-        """_summary_
+        """Set related cell for this button.
 
         Args:
-            cell (Cell): _description_
+            cell (Cell): cell.
         """
         self._cell = cell

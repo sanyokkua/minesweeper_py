@@ -1,26 +1,30 @@
-"""Representation of the Controller API functionality."""
+"""Module contains Game Controller class."""
 import logging
 from typing import Callable
 
-from minesweeper_core.api.controller_action_markers import \
-    ControllerActionMarkers
 from minesweeper_core.api.dtos import GameInformation
-from minesweeper_core.constants.default_configurations import BEGINNER
+from minesweeper_core.api.markers import ControllerActions
+from minesweeper_core.constants.configurations import BEGINNER
 from minesweeper_core.data.field_configuration import Configuration
 from minesweeper_core.logic.game_logic import GameLogic
 
 log: logging.Logger = logging.getLogger(__name__)
 
+StatusUpdateCallback = Callable[[GameInformation], None]
+
 
 class MinesweeperController:
-    """Controller of the game."""
+    """Controller of the Minesweeper Game."""
 
-    def __init__(self, on_game_status_update_callback: Callable[
-        [GameInformation], None] = None) -> None:
-        """_summary_
+    def __init__(
+            self,
+            on_game_status_update_callback: StatusUpdateCallback = None):
+        """Initialize controller with default values.
 
         Args:
-            on_game_status_update_callback (Callable[[GameInformation], None], optional): _description_. Defaults to None.
+            on_game_status_update_callback (StatusUpdateCallback, optional):
+                CallBack function that will be called on the updates of
+                game state.               Defaults to None.
         """
         log.debug('Init controller')
         self._game_instance: GameLogic | None = None
@@ -31,64 +35,85 @@ class MinesweeperController:
                   self._last_config)
 
     def start_new_game(self, config: Configuration) -> None:
-        """_summary_
+        """Start new game session.
+
+        Creates a new instance of the GameLogic with new Configuration
+        of the Game.
 
         Args:
-            config (Configuration): _description_
+            config (Configuration): Game Configuration with information
+                about number of rows, columns, mines.
         """
         log.debug('start_new_game, with config: %s', config)
         self._last_config = config
         self._game_instance = GameLogic(self._last_config)
         if self._on_game_status_update_callback:
             self._on_game_status_update_callback(
-                self.get_game_info(ControllerActionMarkers.NEW_GAME))
+                self.get_game_info(ControllerActions.NEW_GAME))
 
     def reset_game(self) -> None:
-        """_summary_
+        """Reset game state.
+
+        Cleanups game state and returns game state to the initial
+        values.
         """
         log.debug('reset_game, with config: %s', self._last_config)
         self._game_instance = GameLogic(self._last_config)
         if self._on_game_status_update_callback:
             self._on_game_status_update_callback(
-                self.get_game_info(ControllerActionMarkers.RESET_GAME))
+                self.get_game_info(ControllerActions.RESET_GAME))
 
     def open_cell(self, row: int, column: int) -> None:
-        """_summary_
+        """Open game field cell.
+
+        Opens field cell and send notification about result of this
+        open action.
 
         Args:
-            row (int): _description_
-            column (int): _description_
+            row (int): number of the cell row.
+            column (int): number of the cell column.
         """
         log.debug('open_cell, with row: %d, col: %d', row, column)
         if self._game_instance:
             self._game_instance.open_cell(row, column)
         if self._on_game_status_update_callback:
             self._on_game_status_update_callback(
-                self.get_game_info(ControllerActionMarkers.CELL_OPENED))
+                self.get_game_info(ControllerActions.CELL_OPENED))
 
     def flag_cell(self, row: int, column: int) -> None:
-        """_summary_
+        """Put a flag to the cell.
+
+        Puts flag to the field cell if the cell is not open and
+        not flagged. If cell has a flag - flag will be removed.
 
         Args:
-            row (int): _description_
-            column (int): _description_
+            row (int): number of the cell row.
+            column (int): number of the cell column.
         """
         log.debug('flag_cell, with row: %d, col: %d', row, column)
         if self._game_instance:
             self._game_instance.flag_cell(row, column)
         if self._on_game_status_update_callback:
             self._on_game_status_update_callback(
-                self.get_game_info(ControllerActionMarkers.CELL_FLAGGED))
+                self.get_game_info(ControllerActions.CELL_FLAGGED))
 
     def get_game_info(self,
-                      marker: ControllerActionMarkers | None = None) -> GameInformation | None:
-        """_summary_
+                      marker: ControllerActions | None = None
+                      ) -> GameInformation | None:
+        """Return game information.
+
+        Retrieves all the information from current game and saves it
+        in the GameInformation object to be used later.
 
         Args:
-            marker (ControllerActionMarkers | None, optional): _description_. Defaults to None.
+            marker (ControllerActions | None, optional): Marker to
+                pass additional info about when this method was called.
+                For example all the callbacks put information in which
+                method was created game info (new game, reset, etc).
+                Defaults to None.
 
         Returns:
-            GameInformation | None: _description_
+            GameInformation | None: Object with game state information.
         """
         log.debug('get_game_info')
         if self._game_instance:

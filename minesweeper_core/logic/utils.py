@@ -1,4 +1,4 @@
-""" """
+"""Module contains ControllerActions class."""
 import logging
 
 from minesweeper_core.data.cell import Cell
@@ -7,13 +7,21 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 def is_alone_cell(field_cell: Cell) -> bool:
-    """_summary_
+    """Validate if the cell is alone.
+
+    The main idea is that current cell:
+        1) doesn't have mine
+        2) is not opened
+        4) doesn't have a flag
+        5) doesn't have mines around
+    With conditions above it means that cell can be processed and opened
+    as alone cell (opening of the neighbour cell should be triggered).
 
     Args:
-        field_cell (Cell): _description_
+        field_cell (Cell): cell to be processed.
 
     Returns:
-        bool: _description_
+        bool: result of the condition check.
     """
     log.debug('is_alone_cell. cell: %s', field_cell)
     return (not field_cell.has_mine
@@ -23,13 +31,21 @@ def is_alone_cell(field_cell: Cell) -> bool:
 
 
 def has_neighbour_mines(field_cell: Cell) -> bool:
-    """_summary_
+    """Validate if the cell is not alone.
+
+    The main idea is that current cell:
+        1) doesn't have mine
+        2) is not opened
+        4) doesn't have a flag
+        5) have mines around
+    With conditions above it means that cell can be processed and opened
+    as alone cell (opening of the neighbour cell should be triggered).
 
     Args:
-        field_cell (Cell): _description_
+        field_cell (Cell): cell to be processed.
 
     Returns:
-        bool: _description_
+        bool: result of the condition check.
     """
     log.debug('has_neighbour_mines. cell: %s', field_cell)
     return (not field_cell.has_mine
@@ -41,19 +57,25 @@ def has_neighbour_mines(field_cell: Cell) -> bool:
 def get_neighbour_coordinates(current_coordinate: tuple[int, int],
                               number_of_rows: int,
                               number_of_columns: int) -> set[tuple[int, int]]:
-    """_summary_
+    """Find coordinates of the neighbours to the passed coordinate.
+
+    Builds a set (list) of the coordinates that should be in the cells
+    around passed cell (current_coordinate).
+    The logic to build and validate coordinates that will cover cells
+    around and filter coordinates that can be out of the field measures.
+
+    ( 0 0 ) ( 0 1 ) ( 0 2 )    ( -1 -1 ) ( -1 +0 ) ( -1 +1 )
+    ( 1 0 ) ( 1 1 ) ( 1 2 ) -> ( +0 -1 ) (  1  1 ) ( +0 +1 )
+    ( 2 0 ) ( 2 1 ) ( 2 2 )    ( +1 -1 ) ( +1 +0 ) ( +1 +1 )
 
     Args:
-        current_coordinate (tuple[int, int]): _description_
-        number_of_rows (int): _description_
-        number_of_columns (int): _description_
+        current_coordinate (tuple[int, int]): cell coordinates.
+        number_of_rows (int): field number of rows.
+        number_of_columns (int): field number of columns.
 
     Returns:
-        set[tuple[int, int]]: _description_
+        set[tuple[int, int]]: set of the built coordinates.
     """
-    # ( 0 0 ) ( 0 1 ) ( 0 2 )    ( -1 -1 ) ( -1 +0 ) ( -1 +1 )
-    # ( 1 0 ) ( 1 1 ) ( 1 2 ) -> ( +0 -1 ) (  1  1 ) ( +0 +1 )
-    # ( 2 0 ) ( 2 1 ) ( 2 2 )    ( +1 -1 ) ( +1 +0 ) ( +1 +1 )
     log.debug('get_neighbour_coordinates. current: %s', current_coordinate)
     row, column = current_coordinate
     coordinate_modifiers: set[tuple[int, int]] = {
@@ -69,11 +91,11 @@ def get_neighbour_coordinates(current_coordinate: tuple[int, int],
                 (neighbour_row < 0) or (neighbour_row >= number_of_rows))
         is_not_valid_col: bool = ((neighbour_col < 0) or (
                 neighbour_col >= number_of_columns))
-        is_current_cell: bool = neighbour_row == row and neighbour_col == column
+        is_current_cell: bool = (neighbour_row == row
+                                 and neighbour_col == column)
         if is_not_valid_row or is_not_valid_col or is_current_cell:
-            log.debug(
-                'get_neighbour_coordinates.is_not_valid_row or is_not_valid_col or is_current_cell')
-            continue  # Filter coordinates that are not valid
+            log.debug('Filter coordinates that are not valid')
+            continue
         result_set.add((neighbour_row, neighbour_col))
     log.debug('get_neighbour_coordinates. result num: %d', len(result_set))
     return result_set

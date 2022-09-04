@@ -1,4 +1,4 @@
-"""Module represent Main Game Logic implementation"""
+"""Module contains GameLogic class."""
 import logging
 import random
 
@@ -10,15 +10,19 @@ from minesweeper_core.logic.exceptions import IncorrectCoordinatesException
 
 log: logging.Logger = logging.getLogger(__name__)
 
+FieldDict = dict[tuple[int, int], Cell]
+
 
 class GameLogic:
     """Class encapsulates logic of the game."""
 
     def __init__(self, game_config: Configuration) -> None:
-        """_summary_
+        """Initialize GameLogic with the passed configuration.
 
         Args:
-            game_config (Configuration): _description_
+            game_config (Configuration): configuration contains
+                parameters of the game session as size of field and
+                number of mines.
         """
         log.debug('Initializing game')
         self._game_field: Field = Field(game_config, {})
@@ -27,14 +31,14 @@ class GameLogic:
         self._is_player_win = False
         self._flags_number = game_config.number_of_mines
         self._init_field()
-        log.debug(
-            'Game inited with: field: %s, first_time: %s, finished: %s, win: %s',
-            self._game_field, self._is_first_time_open,
-            self.is_game_finished, self.is_player_win)
+        log.debug('field: %s, first_time: %s, finished: %s, win: %s',
+                  self._game_field,
+                  self._is_first_time_open,
+                  self.is_game_finished,
+                  self.is_player_win)
 
     def _init_field(self) -> None:
-        """_summary_
-        """
+        """Initialize field with default values."""
         rows: int = self.rows
         cols: int = self.columns
         for row in range(rows):
@@ -47,73 +51,88 @@ class GameLogic:
 
     @property
     def rows(self) -> int:
-        """_summary_
+        """Return number of rows.
 
         Returns:
-            int: _description_
+            int: number of rows.
         """
         return self._game_field.field_config.number_of_rows
 
     @property
     def columns(self) -> int:
-        """_summary_
+        """Return number of columns.
 
         Returns:
-            int: _description_
+            int: number of columns.
         """
         return self._game_field.field_config.number_of_columns
 
     @property
-    def field(self) -> dict[tuple[int, int], Cell]:
-        """_summary_
+    def field(self) -> FieldDict:
+        """Return field.
 
         Returns:
-            dict[tuple[int, int], Cell]: _description_
+            FieldDict: current field.
         """
         return self._game_field.field_cells
 
     @property
     def number_of_mines(self) -> int:
-        """_summary_
+        """Return number of mines.
 
         Returns:
-            int: _description_
+            int: number of mines.
         """
         return self._game_field.field_config.number_of_mines
 
     @property
     def number_of_flags(self) -> int:
-        """_summary_
+        """Return number of available flags.
 
         Returns:
-            int: _description_
+            int: number of flags.
         """
         return self._flags_number
 
     @property
     def is_game_finished(self) -> bool:
-        """_summary_
+        """Return game state status.
+
+        If game is finished - True will be returned.
+        False will be return if game still alive.
 
         Returns:
-            bool: _description_
+            bool: finished game status.
         """
         return self._is_game_finished
 
     @property
     def is_player_win(self) -> bool:
-        """_summary_
+        """Return status of the player in the game.
+
+        If player has not opened cell with bomb/mine, then player status
+        will be True (is_player_win will return True).
+        If player exploded - value will be False.
 
         Returns:
-            bool: _description_
+            bool: player win status.
         """
         return self._is_player_win
 
     def open_cell(self, row: int, column: int) -> None:
-        """_summary_
+        """Open cell by coordinates.
+
+        Cell with coordinates (row, column) will be opened and status of
+        the game will be reprocessed.
+        After opening the cell, game will check if game is not finished
+        and neighbour cells will be opened also if conditions are valid
+        for it.
+        For first open time - mines will be set to random cells
+        excluding current cell coordinates.
 
         Args:
-            row (int): _description_
-            column (int): _description_
+            row (int): cell row number.
+            column (int): cell column number.
         """
         log.debug('Open Cell, (%d, %d)', row, column)
         self._validate_coordinates(row, column)
@@ -127,11 +146,16 @@ class GameLogic:
         self._process_current_game_state()
 
     def flag_cell(self, row: int, column: int) -> None:
-        """_summary_
+        """Put or remove flag from the cell.
+
+        If cell is not open (already) and doesn't have a flag - method
+        will add flag to this cell.
+        If cell is not open and has a flag - flag will be removed from
+        this cell.
 
         Args:
-            row (int): _description_
-            column (int): _description_
+            row (int): cell row number.
+            column (int): cell column number.
         """
         log.debug('flag_cell, (%d, %d)', row, column)
         self._validate_coordinates(row, column)
@@ -148,10 +172,13 @@ class GameLogic:
                   row, column, cell.has_flag)
 
     def _open_cell(self, coordinate: tuple[int, int]) -> None:
-        """_summary_
+        """Open cell.
+
+        Validate preconditions and open cell, check game state, etc.
 
         Args:
-            coordinate (tuple[int, int]): _description_
+            coordinate (tuple[int, int]): coordinate of opening cell
+                as tuple[row, column]
         """
         log.debug('_open_cell.begin')
         cell: Cell = self.field[coordinate]
@@ -175,22 +202,21 @@ class GameLogic:
         log.debug('_open_cell.end')
 
     def _put_mines(self, current_coordinate: tuple[int, int]) -> None:
-        """_summary_
+        """Put mines to the field.
+
+        Put to the field mines in random positions excluding passed
+        coordinate.
 
         Args:
-            current_coordinate (tuple[int, int]): _description_
+            current_coordinate (tuple[int, int]): coordinate of opening
+                cell as tuple[row, column].
         """
         log.debug('_put_mines, skip coordinate: %s', current_coordinate)
         number_of_mines: int = self._game_field.field_config.number_of_mines
         coordinates: set[tuple[int, int]] = set()
         while len(coordinates) < number_of_mines:
             coord: tuple[int, int] = random.choice(list(self.field.keys()))
-            if coord in coordinates or coord == current_coordinate:
-                log.debug('_put_mines, skip coordinate in cycle: %s', coord)
-                # We do not want to have coordinates that already in
-                # the list or coordinates of the cell that were already opened
-                # (In the beginning of the game)
-            else:
+            if coord not in coordinates and coord != current_coordinate:
                 log.debug('_put_mines, add coordinate: %s', coord)
                 coordinates.add(coord)
         for cell_coordinate in coordinates:
@@ -201,17 +227,21 @@ class GameLogic:
                       cell.has_mine)
 
     def _count_neighbour_mines_for_all_field(self) -> None:
-        """_summary_
-        """
+        """Count mines for cells in the field."""
         log.debug('_count_neighbour_mines_for_all_field')
         for cell in self.field.values():
             self._count_neighbour_mines_for_cell(cell)
 
     def _finish_game(self, is_player_exploded: bool = False) -> None:
-        """_summary_
+        """Check game state.
+
+        Check each cell in the field to validate condition of the
+        finished game. If is_player_exploded passed True, is_player_win
+        will be set to False.
 
         Args:
-            is_player_exploded (bool, optional): _description_. Defaults to False.
+            is_player_exploded (bool, optional): shows of the player
+                status. Defaults to False.
         """
         log.debug('_finish_game, is_player_win: %s', is_player_exploded)
         for cell in self.field.values():
@@ -228,43 +258,42 @@ class GameLogic:
 
     def _open_this_and_neighbour_cells(self,
                                        coordinate: tuple[int, int]) -> None:
-        """_summary_
+        """Open current and neighbour cells.
+
+        If the conditions are appropriate for opening neighbour cells,
+        they will be opened in addition to the cell represented by
+        passed coordinate.
 
         Args:
-            coordinate (tuple[int, int]): _description_
+            coordinate (tuple[int, int]): current cell coordinate.
         """
         log.debug('_open_this_and_neighbour_cells, coordinate: %s', coordinate)
         if self.field[coordinate].neighbour_mines > 0:
             self.field[coordinate].is_open = True
-            log.debug(
-                '_open_this_and_neighbour_cells, skip opening, because has neighbour mines')
+            log.debug('skip opening neighbours, because has neighbour mines')
             return
         queue: set[tuple[int, int]] = set()
         queue.add(coordinate)
         while len(queue) > 0:
             pop_coordinate: tuple[int, int] = queue.pop()
-            log.debug(
-                '_open_this_and_neighbour_cells, processing pop_coordinate: %s',
-                pop_coordinate)
+            log.debug('processing pop_coordinate: %s', pop_coordinate)
             current_cell: Cell = self.field[pop_coordinate]
             if utils.is_alone_cell(current_cell):
-                log.debug(
-                    '_open_this_and_neighbour_cells, utils.is_alone_cell(current_cell)')
+                log.debug('utils.is_alone_cell(current_cell)')
                 current_cell.is_open = True
                 neighbours = utils.get_neighbour_coordinates(
                     pop_coordinate, self.rows, self.columns)
                 for new_coordinate in neighbours:
                     queue.add(new_coordinate)
             elif utils.has_neighbour_mines(current_cell):
-                log.debug(
-                    '_open_this_and_neighbour_cells, utils.has_neighbour_mines(current_cell)')
+                log.debug('utils.has_neighbour_mines(current_cell)')
                 current_cell.is_open = True
 
     def _count_neighbour_mines_for_cell(self, cell: Cell) -> None:
-        """_summary_
+        """Find and count mines around passed cell.
 
         Args:
-            cell (Cell): _description_
+            cell (Cell): current cell that is processing.
         """
         log.debug('_count_neighbour_mines_for_cell, cell: %s', cell)
         neighbours = self._get_neighbour_cells(cell.row, cell.column)
@@ -273,25 +302,22 @@ class GameLogic:
             if neighbour_cell.has_mine:
                 count += 1
         cell.neighbour_mines = count
-        log.debug(
-            '_count_neighbour_mines_for_cell, cell: %s, mines_around: %d',
-            cell, cell.neighbour_mines)
+        log.debug('cell: %s, mines_around: %d', cell, cell.neighbour_mines)
 
-    def _get_neighbour_cells(self, row: int, column: int) -> dict[
-        tuple[int, int], Cell]:
-        """_summary_
+    def _get_neighbour_cells(self, row: int, column: int) -> FieldDict:
+        """Find and return all the neighbour cell to the passed coordinates.
 
         Args:
-            row (int): _description_
-            column (int): _description_
+            row (int): row number.
+            column (int): column number.
 
         Returns:
-            dict[tuple[int, int], Cell]: _description_
+            FieldDict: dictionary that represents field.
         """
         log.debug('_get_neighbour_cells. (%d, %d)', row, column)
         neighbours = utils.get_neighbour_coordinates(
             (row, column), self.rows, self.columns)
-        result_dictionary: dict[tuple[int, int], Cell] = {}
+        result_dictionary: FieldDict = {}
         for n_coordinate in neighbours:
             result_dictionary[n_coordinate] = self.field[n_coordinate]
         log.debug(
@@ -300,14 +326,15 @@ class GameLogic:
         return result_dictionary
 
     def _validate_coordinates(self, row: int, column: int) -> None:
-        """_summary_
+        """Validate passed coordinates.
 
         Args:
-            row (int): _description_
-            column (int): _description_
+            row (int): row number.
+            column (int): column number.
 
         Raises:
-            IncorrectCoordinatesException: _description_
+            IncorrectCoordinatesException: raised if the coordinates has
+                incorrect values.
         """
         log.debug('Validation of (%d, %d)', row, column)
         is_valid_row: bool = 0 <= row < self.rows
@@ -318,26 +345,26 @@ class GameLogic:
             raise IncorrectCoordinatesException('Coordinates are not valid')
 
     def _process_current_game_state(self) -> None:
-        """_summary_
+        """Check if the game has finished state.
+
+        Gather all the game information and check conditions that will
+        say if the game finished or can be continued.
         """
         log.debug('_process_current_game_state.begin')
-        expected_number_of_mines: int = self._game_field.field_config.number_of_mines
+        config = self._game_field.field_config
+        expected_number_of_mines: int = config.number_of_mines
         expected_number_of_cells: int = self.rows * self.columns
-        log.debug('_process_current_game_state. num_mines: %d, num_cells: %d',
+        log.debug('num_mines: %d, num_cells: %d',
                   expected_number_of_mines,
                   expected_number_of_cells)
         count_opened_cells: int = 0
         for cell in self.field.values():
             if cell.is_open:
                 count_opened_cells += 1
-        log.debug('_process_current_game_state. opened: %d',
-                  count_opened_cells)
-        total_opened_cells_and_plus_mines: int = count_opened_cells + expected_number_of_mines
-        log.debug(
-            '_process_current_game_state. total_opened_cells_and_plus_mines: %d',
-            total_opened_cells_and_plus_mines)
-        if total_opened_cells_and_plus_mines == expected_number_of_cells:
-            log.debug(
-                '_process_current_game_state. Game is Finished without flags')
+        log.debug('opened: %d', count_opened_cells)
+        total_num: int = count_opened_cells + expected_number_of_mines
+        log.debug('total_num: %d', total_num)
+        if total_num == expected_number_of_cells:
+            log.debug('Game is Finished without flags')
             self._finish_game(is_player_exploded=False)
         log.debug('_process_current_game_state.begin')

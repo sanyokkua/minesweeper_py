@@ -1,6 +1,6 @@
 import pytest
 
-from minesweeper_core.constants.default_configurations import ADVANCED, \
+from minesweeper_core.constants.configurations import ADVANCED, \
     BEGINNER, INTERMEDIATE
 from minesweeper_core.data.field_configuration import Configuration
 from minesweeper_core.logic.exceptions import IncorrectCoordinatesException

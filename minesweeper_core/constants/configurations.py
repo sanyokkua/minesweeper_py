@@ -1,4 +1,4 @@
-""""""
+"""Module contains default game configuration objects."""
 import logging
 
 from minesweeper_core.data.field_configuration import Configuration

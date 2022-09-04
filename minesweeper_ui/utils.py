@@ -1,4 +1,4 @@
-""" """
+"""Util methods that are used in the qt application."""
 import importlib.resources as res
 import logging
 
@@ -11,26 +11,26 @@ log: logging.Logger = logging.getLogger(__name__)
 
 
 def load_icon(img_name: str) -> QIcon:
-    """_summary_
+    """Load image and return built QIcon on this image.
 
     Args:
-        img_name (str): _description_
+        img_name (str): name of the image that should be loaded.
 
     Returns:
-        QIcon: _description_
+        QIcon: Built QIcon from loaded image
     """
     q_pixmap: QPixmap = load_pixmap(img_name)
     return QIcon(q_pixmap)
 
 
 def load_pixmap(img_name: str) -> QPixmap:
-    """_summary_
+    """Load and build QPixmap from the image.
 
     Args:
-        img_name (str): _description_
+        img_name (str): name of the image that should be loaded.
 
     Returns:
-        QPixmap: _description_
+        QPixmap: pixmap that is built from image.
     """
     image_png_bytes: bytes = res.read_binary(resources, img_name)
     q_pixmap: QPixmap = QPixmap()
@@ -39,13 +39,17 @@ def load_pixmap(img_name: str) -> QPixmap:
 
 
 def get_smallest_side_size(widget: QWidget) -> int:
-    """_summary_
+    """Calculate the smallest side of the widget.
+
+    Widget has width and height dimensions, and this function will find
+    what dimension is the smallest and return or original width, or
+    original height, depends on what is smaller.
 
     Args:
-        widget (QWidget): _description_
+        widget (QWidget): QWidget and its children classes.
 
     Returns:
-        int: _description_
+        int: smallest dimension (size).
     """
     log.debug('widget: %s', widget)
     width: int = widget.width()
