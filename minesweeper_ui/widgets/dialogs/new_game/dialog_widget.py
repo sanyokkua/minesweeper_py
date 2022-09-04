@@ -17,7 +17,7 @@ class QDialogWidget(QDialog):
     def __init__(self) -> None:
         """Initialize dialog widget."""
         QDialog.__init__(self)
-        self.setWindowTitle('Dialog')
+        self.setWindowTitle('Select complexity for new game')
         self.setLayout(self._create_layout())
         self.setFixedSize(QSize(380, 190))
         self.layout().addWidget(self._create_form())

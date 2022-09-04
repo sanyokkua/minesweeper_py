@@ -165,9 +165,11 @@ class QMainWindowMinesweeper(QMainWindow):
         self._lcd_time.setDecMode()
         self._lcd_time.setDigitCount(10)
         self._lcd_time.display(0)
+        self._lcd_time.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
         self._lcd_flags.setDecMode()
         self._lcd_flags.setDigitCount(10)
         self._lcd_flags.display(0)
+        self._lcd_flags.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
 
     def _add_reset_game_push_button_signal_handler(self) -> None:
         """Connect reset button clicked signal to the handler."""

@@ -4,7 +4,7 @@ import logging
 from minesweeper_ui.widgets.application_widget import QApplicationMinesweeper
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s %(levelname)s [%(name)s %(funcName)s] %(message)s')
 
 log: logging.Logger = logging.getLogger(__name__)
