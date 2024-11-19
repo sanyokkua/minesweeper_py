@@ -8,12 +8,12 @@ readme = "README.md"
 packages = [{ include = "minesweeper_core" }, { include = "minesweeper_ui" }]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
+python = ">=3.10,<3.14"
 PyQt6 = "^6.3.1"
 docformatter = "^1.5.0"
 
 [tool.poetry.dev-dependencies]
-pyinstaller = "^5.3"
+pyinstaller = "6.11.1"
 pep8 = "^1.7.1"
 isort = "^5.10.1"
 mypy = "^0.971"
